@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User ToDo 1",
+    "type": "object",
+    "properties": {
+    	"userId": {
+			"type": "integer"
+		},
+		"id": {
+			"type": "integer"
+		},
+		"title": {
+			"type": "string"
+		},
+		"completed": {
+			"type": "boolean"
+		}
+    }
+}

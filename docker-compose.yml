@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+
+  adminer:
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+    image: adminer
+    restart: always
+    networks:
+      qa_net:
+        ipv4_address: 172.21.0.6
+        ipv6_address: 2001:3984:3989::6
+
+  browser-firefox:
+    environment:
+      TZ: UTC
+    image: selenium/standalone-firefox-debug:3
+    shm_size: '2gb'
+    networks:
+      qa_net:
+        ipv4_address: 172.21.0.11
+        ipv6_address: 2001:3984:3989::10
+
+  mysql:
+    build: ./mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: test
+      MYSQL_DEBUG: 'true'
+      MYSQL_PASSWORD: secret
+      MYSQL_USER: epic
+      TZ: UTC
+    restart: always
+    networks:
+      qa_net:
+        ipv4_address: 172.21.0.5
+        ipv6_address: 2001:3984:3989::6
+
+  tests-java:
+    build: ./tests-java
+    command: mvn test
+    environment:
+      MAVEN_HOME: '/root/.m2'
+    depends_on:
+      - browser-firefox
+      - mysql
+    volumes:
+      - './tests-java/.m2:/root/.m2'
+    networks:
+      - qa_net
+
+networks:
+  qa_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.21.0.0/24"
+        - subnet: "2001:3984:3989::/64"
